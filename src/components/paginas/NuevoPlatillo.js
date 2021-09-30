@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {FirebaseContext} from '../../firebase';
@@ -6,6 +6,10 @@ import {useNavigate} from 'react-router-dom'
 import FileUploader from 'react-firebase-file-uploader';
 
 const NuevoPlatillo = () => {
+    // state para las imagenes
+    const [subiendo, guardarSubiendo] = useState(false);
+    const [progreso, guardarProgreso] = useState(0);
+    const [urlimagen, guardarUrlimagen] = useState('');
 
     // Context con las operaciones de firebase
     const {firebase} = useContext(FirebaseContext);
@@ -38,6 +42,7 @@ const NuevoPlatillo = () => {
         onSubmit: platillo =>{
             try {
                 platillo.existencia = true;
+                platillo.imagen = urlimagen;
                 firebase.db.collection('productos').add(platillo);
 
                 //Redireccionar
@@ -46,7 +51,39 @@ const NuevoPlatillo = () => {
                 console.log(error)
             }
         }
-    })
+    });
+
+    // Funciones sobre las imagenes
+    const handleUploadStart = () =>{
+        guardarProgreso(0);
+        guardarSubiendo(true);
+    }
+
+    const handleUploadError = error =>{
+        guardarSubiendo(false);
+        console.log(error);
+    }
+
+    const handleUploadSuccess = async nombre =>{
+        guardarProgreso(100);
+        guardarSubiendo(false);
+
+        // Almacenar la URL de destino
+        const url = await firebase
+                    .storage
+                    .ref("productos")
+                    .child(nombre)
+                    .getDownloadURL();
+
+        console.log(url);
+        guardarUrlimagen(url);
+    }
+
+    const handleProgress = progreso =>{
+        guardarProgreso(progreso);
+        console.log(progreso);
+
+    }
 
 
     return ( 
@@ -136,6 +173,10 @@ const NuevoPlatillo = () => {
                                 name="imagen"
                                 randomizeFilename
                                 storageRef={firebase.storage.ref("productos")}
+                                onUploadStart={handleUploadStart}
+                                onUploadError={handleUploadError}
+                                onUploadSuccess={handleUploadSuccess}
+                                onProgress={handleProgress}
                             ></FileUploader>
                         </div>
 
