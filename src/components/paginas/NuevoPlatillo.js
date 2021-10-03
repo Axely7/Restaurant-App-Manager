@@ -213,7 +213,6 @@ const NuevoPlatillo = () => {
                             </div>
                         ): null}
 
-
                         <input
                             type="submit"
                             className="bg-gray-800 hover:bg-gray-900 w-full mt-5 p-2 text-white uppercase font-bold cursor-pointer"
