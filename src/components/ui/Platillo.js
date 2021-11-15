@@ -2,20 +2,16 @@ import React, {useContext, useRef} from 'react';
 import { FirebaseContext } from '../../firebase';
 
 const Platillo = ({platillo}) => {
-
     // Existencia ref para acceder al valor directamente
     const existenciaRef = useRef(platillo.existencia);
 
     // context de firebase para cambios en la BD
     const {firebase} = useContext(FirebaseContext);
-
-
     const {id, nombre, imagen, existencia, categoria, precio, descripcion} = platillo;
 
     // Modificar el estado del platillo en firebase
     const actualizarDisponibilidad = () =>{
         const existencia = (existenciaRef.current.value === "true");
-        
         try {
             firebase.db.collection('productos')
                 .doc(id)
@@ -26,7 +22,6 @@ const Platillo = ({platillo}) => {
             console.log(error);
         }
     }
-
 
     return ( 
         <div className="w-full px-3 mb-4">
@@ -50,6 +45,8 @@ const Platillo = ({platillo}) => {
                             </label>
                         </div>
                     </div>
+
+
                     <div className="ld:w-7/12 xl:w-9/12 pl-5">
                         <p className="font-bold text-2xl text-yellow-600 mb-4">{nombre}</p>
                         <p className="text-gray-600 mb-4">Categoría: {''}
@@ -65,5 +62,4 @@ const Platillo = ({platillo}) => {
         </div>
      );
 }
- 
 export default Platillo;
