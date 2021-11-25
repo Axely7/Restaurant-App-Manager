@@ -1,6 +1,40 @@
-import React from 'react';
+import React, {useState, useContext} from 'react';
+import { FirebaseContext } from '../../firebase';
+
 
 const Orden = ({ orden }) => {
+
+    const [tiempoentrega, guardarTiempoEntrega] = useState(0);
+
+    // Context de firebase
+    const {firebase} = useContext(FirebaseContext);
+
+    // Define el tiempo de entrega en tiempo real
+    const definirTiempo = id => {
+        try {
+            firebase.db.collection('ordenes')
+                .doc(id)
+                .update({
+                    tiempoentrega
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    // Completa el estado de una orden
+    const completarOrden = id => {
+        try {
+            firebase.db.collection('ordenes')
+                .doc(id)
+                .update({
+                    completado: true
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return ( 
         <div className="sm:w-1/2 lg:w-1/3 px-2 mb-4">
             <div className="p-3 shadow-md bg-white">
@@ -23,8 +57,11 @@ const Orden = ({ orden }) => {
                             min="1"
                             max="30"
                             placeholder="30"
+                            value = {tiempoentrega}
+                            onChange = {e => guardarTiempoEntrega(parseInt(e.target.value))}
                         />
                         <button
+                            onClick={() => definirTiempo(orden.id) }
                             type="submit"
                             className="bg-gray-800 hover:bg-gray-900 w-full mt-5 p-2 text-white uppercase font-bold"
                         >Definir Tiempo</button>
@@ -32,6 +69,22 @@ const Orden = ({ orden }) => {
 
                 )}
 
+                {orden.tiempoentrega > 0 && (
+                    <p className="text-gray-700">Tiempo de Entrega:
+                        <span className="font-bold">{orden.tiempoentrega} Minutos</span>
+                    </p>
+                )}
+
+                { !orden.completado && orden.tiempoentrega > 0 && (
+                    <button 
+                    type="button"
+                    className="bg-blue-800 hover:bg-blue-700 w-full mt-5 p-2 text-white uppercase font-bold"
+                    onClick = {() => completarOrden(orden.id)}
+                    >
+                        Marcar como lista
+                    </button>
+
+                )}
             </div>
         </div>
 
